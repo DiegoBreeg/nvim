@@ -23,3 +23,28 @@ vim.keymap.set('n', '<leader>tt', function()
   vim.cmd 'terminal'
   vim.cmd 'startinsert' -- Aqui o `startinsert` é um comando do Neovim, então não precisa do `|`
 end, { desc = 'Toggle terminal in horizontal split' })
+
+vim.keymap.set('v', '<leader>u', function()
+  local line = vim.api.nvim_get_current_line()
+  local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+  local len = #line
+
+  -- Inicia a seleção sem sair do modo visual
+  vim.api.nvim_feedkeys('v', 'n', false)
+
+  -- Movimenta o cursor até a posição desejada
+  while col < len do
+    col = col + 1
+    local char = line:sub(col + 1, col + 1)
+    if char:match '%u' or char == ' ' then
+      col = col - 1
+      break
+    end
+  end
+
+  -- Atualiza a posição do cursor para a seleção
+  vim.api.nvim_win_set_cursor(0, { row, col })
+
+  -- Mantém o modo visual e a seleção ativa
+  vim.api.nvim_feedkeys('gv', 'n', false)
+end, { noremap = true, silent = true, desc = 'Seleciona até antes do próximo uppercase ou espaço' })
